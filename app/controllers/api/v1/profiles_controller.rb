@@ -1,5 +1,7 @@
+require 'rest-client'
+require 'json'
 class Api::V1::ProfilesController < Api::V1::ApiController
-    before_action :set_profile, only: [:show, :update, :destroy]
+    before_action :set_profile, only: [:show, :update, :destroy, :watchlist]
 
     before_action :require_authorization!, only: [:show, :update, :destroy]
 
@@ -26,6 +28,20 @@ class Api::V1::ProfilesController < Api::V1::ApiController
 
     def show
         render json: @profile
+    end
+
+    def watchlist
+        @movies = []
+        @profile.watchlist.each do |item|
+            response = RestClient.get 'https://api.themoviedb.org/3/movie/464052?api_key=3624203c3f8aa66f05b09012ea276ec6'
+            movie = JSON.parse(response)
+            @movies.push movie
+        end
+
+        render json: {
+            profile: @profile,
+            movies: @movies
+        }
     end
     
     def require_authorization!
