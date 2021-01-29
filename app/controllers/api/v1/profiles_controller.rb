@@ -8,9 +8,16 @@ class Api::V1::ProfilesController < Api::V1::ApiController
     end
 
     def create
-        @profile = current_user.profiles.new params.permit(:name)
-        @profile.save
-        render json: @profile
+        if (current_user.profiles.length < 4)
+            @profile = current_user.profiles.new params.permit(:name)
+            @profile.save
+            render json: @profile
+        else
+            render json: {
+                status: false,
+                message: 'You cannot have more than one profile.'
+            }, status: :forbidden
+        end
     end
 
     def set_profile
