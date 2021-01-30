@@ -35,9 +35,11 @@ class Api::V1::ProfilesController < Api::V1::ApiController
     end
 
     def watchlist
+        apiKey = "3624203c3f8aa66f05b09012ea276ec6"
         @movies = []
         @profile.watchlist.each do |item|
-            response = RestClient.get 'https://api.themoviedb.org/3/movie/464052?api_key=3624203c3f8aa66f05b09012ea276ec6'
+            url = "https://api.themoviedb.org/3/movie/#{item.movie_id}?api_key=#{apiKey}"
+            response = RestClient.get  url
             movie = JSON.parse(response)
             @movies.push movie
         end

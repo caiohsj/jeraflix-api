@@ -3,8 +3,22 @@ class Api::V1::WatchlistController < Api::V1::ApiController
     before_action :require_authorization!, only: [:create]
 
  def create
-    watchlist = Watchlist.create profile_id: params[:profile_id], movie_id: params[:movie_id]
-    render json: watchlist
+    profile_id = params[:profile_id];
+    movie_id = params[:movie_id]
+    foundItem = Watchlist.where 'profile_id = :p AND movie_id = :m', { p: profile_id, m: movie_id}
+    if(foundItem.length > 0)
+        response = {
+            status: false,
+            message: 'This film is already on your list!'
+        }
+    else
+        watchlist = Watchlist.create profile_id: profile_id, movie_id: movie_id
+        response = {
+            watchlist: watchlist,
+            status: true
+        }
+    end
+    render json: response
  end
 
  def set_profile
