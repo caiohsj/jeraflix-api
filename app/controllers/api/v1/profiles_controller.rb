@@ -3,7 +3,7 @@ require 'json'
 class Api::V1::ProfilesController < Api::V1::ApiController
     before_action :set_profile, only: [:show, :update, :destroy, :watchlist]
 
-    before_action :require_authorization!, only: [:show, :update, :destroy]
+    before_action :require_authorization!, only: [:show, :update, :destroy, :watchlist]
 
     def index
         render json: current_user.profiles
@@ -35,10 +35,10 @@ class Api::V1::ProfilesController < Api::V1::ApiController
     end
 
     def watchlist
-        apiKey = "3624203c3f8aa66f05b09012ea276ec6"
+        api_key = "3624203c3f8aa66f05b09012ea276ec6"
         @movies = []
         @profile.watchlist.each do |item|
-            url = "https://api.themoviedb.org/3/movie/#{item.movie_id}?api_key=#{apiKey}"
+            url = "https://api.themoviedb.org/3/movie/#{item.movie_id}?api_key=#{api_key}"
             response = RestClient.get  url
             movie = JSON.parse(response)
             @movies.push movie
