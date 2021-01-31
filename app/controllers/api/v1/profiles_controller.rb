@@ -1,9 +1,9 @@
 require 'rest-client'
 require 'json'
 class Api::V1::ProfilesController < Api::V1::ApiController
-    before_action :set_profile, only: [:show, :update, :destroy, :watchlist]
+    before_action :set_profile, only: [:show, :update, :destroy, :watchlist, :watched_movies]
 
-    before_action :require_authorization!, only: [:show, :update, :destroy, :watchlist]
+    before_action :require_authorization!, only: [:show, :update, :destroy, :watchlist, :watched_movies]
 
     def index
         render json: current_user.profiles
@@ -39,6 +39,28 @@ class Api::V1::ProfilesController < Api::V1::ApiController
         @movies = []
         @recommendations = []
         @profile.watchlist.each do |item|
+            urlMovie = "https://api.themoviedb.org/3/movie/#{item.movie_id}?api_key=#{api_key}"
+            urlRecommendations = "https://api.themoviedb.org/3/movie/#{item.movie_id}/recommendations?api_key=#{api_key}"
+            responseMovie = RestClient.get  urlMovie
+            responseRecommendation = RestClient.get urlRecommendations
+            movie = JSON.parse(responseMovie)
+            recommendations = JSON.parse(responseRecommendation)
+            @movies.push movie
+            @recommendations.push recommendations
+        end
+
+        render json: {
+            profile: @profile,
+            movies: @movies,
+            recommendations: @recommendations
+        }
+    end
+
+    def watched_movies
+        api_key = "3624203c3f8aa66f05b09012ea276ec6"
+        @movies = []
+        @recommendations = []
+        @profile.watched_movies.each do |item|
             urlMovie = "https://api.themoviedb.org/3/movie/#{item.movie_id}?api_key=#{api_key}"
             urlRecommendations = "https://api.themoviedb.org/3/movie/#{item.movie_id}/recommendations?api_key=#{api_key}"
             responseMovie = RestClient.get  urlMovie
