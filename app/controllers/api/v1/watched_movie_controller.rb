@@ -12,11 +12,19 @@ class Api::V1::WatchedMovieController < Api::V1::ApiController
                 message: 'This film was watched!'
             }
         else
+            movie_in_watchlist = Watchlist.where 'profile_id = :p AND movie_id = :m', { p: profile_id, m: movie_id}
             watched_movie = WatchedMovie.create profile_id: profile_id, movie_id: movie_id
-            response = {
-                watched_movie: watched_movie,
-                status: true
-            }
+            if (movie_in_watchlist.length > 0)
+                response = {
+                    watched_movie: watched_movie,
+                    status: true
+                }
+            else
+                response = {
+                    status: false,
+                    message: "This movie is not on the 'watch later' list"
+                }
+            end
         end
         render json: response
     end
