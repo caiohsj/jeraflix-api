@@ -4,6 +4,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :profiles
       resources :watchlist
+      resources :watched_movie
       post '/users', to: 'user#create'
       post '/auth', to: 'user#auth'
       get '/profiles/:id/watchlist', to: 'profiles#watchlist'
