@@ -37,16 +37,22 @@ class Api::V1::ProfilesController < Api::V1::ApiController
     def watchlist
         api_key = "3624203c3f8aa66f05b09012ea276ec6"
         @movies = []
+        @recommendations = []
         @profile.watchlist.each do |item|
-            url = "https://api.themoviedb.org/3/movie/#{item.movie_id}?api_key=#{api_key}"
-            response = RestClient.get  url
-            movie = JSON.parse(response)
+            urlMovie = "https://api.themoviedb.org/3/movie/#{item.movie_id}?api_key=#{api_key}"
+            urlRecommendations = "https://api.themoviedb.org/3/movie/#{item.movie_id}/recommendations?api_key=#{api_key}"
+            responseMovie = RestClient.get  urlMovie
+            responseRecommendation = RestClient.get urlRecommendations
+            movie = JSON.parse(responseMovie)
+            recommendations = JSON.parse(responseRecommendation)
             @movies.push movie
+            @recommendations.push recommendations
         end
 
         render json: {
             profile: @profile,
-            movies: @movies
+            movies: @movies,
+            recommendations: @recommendations
         }
     end
     
