@@ -6,15 +6,17 @@ class Api::V1::WatchedMovieController < Api::V1::ApiController
         profile_id = params[:profile_id];
         movie_id = params[:movie_id]
         foundItem = WatchedMovie.where 'profile_id = :p AND movie_id = :m', { p: profile_id, m: movie_id}
+        movie_in_watchlist = Watchlist.where 'profile_id = :p AND movie_id = :m', { p: profile_id, m: movie_id}
         if(foundItem.length > 0)
+            Watchlist.destroy movie_in_watchlist[0].id
             response = {
                 status: false,
                 message: 'This film was watched!'
             }
         else
-            movie_in_watchlist = Watchlist.where 'profile_id = :p AND movie_id = :m', { p: profile_id, m: movie_id}
             watched_movie = WatchedMovie.create profile_id: profile_id, movie_id: movie_id
             if (movie_in_watchlist.length > 0)
+                Watchlist.destroy movie_in_watchlist[0].id
                 response = {
                     watched_movie: watched_movie,
                     status: true
