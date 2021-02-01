@@ -1,8 +1,20 @@
 class Api::V1::UserController < ApplicationController
     def create
-        @user = User.new params.permit(:name, :email, :password)
-        @user.save
-        render json: @user
+        user_exist = User.where email: params[:email]
+        if (user_exist.length > 0)
+            response = {
+                status: false,
+                message: 'This email is in use'
+            }
+        else
+            @user = User.new params.permit(:name, :email, :password)
+            @user.save
+            response = {
+                status: true,
+                user: @user
+            }
+        end
+        render json: response
     end
 
     def auth
