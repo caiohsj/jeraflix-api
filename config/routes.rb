@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       post '/auth', to: 'user#auth'
       get '/profiles/:id/watchlist', to: 'profiles#watchlist'
       get '/profiles/:id/watched_movies', to: 'profiles#watched_movies'
+      get '/movie/:id/profile/:profile', to: 'movie#show'
     end
   end
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
