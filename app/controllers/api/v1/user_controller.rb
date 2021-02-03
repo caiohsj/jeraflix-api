@@ -28,7 +28,6 @@ class Api::V1::UserController < ApplicationController
                 token: @user.authentication_token
             }
         end
-        
     end
 
     def show_profiles

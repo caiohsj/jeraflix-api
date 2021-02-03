@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       post '/auth', to: 'user#auth'
       get '/profiles/:id/watchlist', to: 'profiles#watchlist'
       get '/profiles/:id/watched_movies', to: 'profiles#watched_movies'
+      get '/profiles/:id/recommendations', to: 'profiles#recommendations'
       get '/movie/:id/profile/:profile', to: 'movie#show'
     end
   end

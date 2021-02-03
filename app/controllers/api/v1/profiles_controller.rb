@@ -1,9 +1,9 @@
 require 'rest-client'
 require 'json'
 class Api::V1::ProfilesController < Api::V1::ApiController
-    before_action :set_profile, only: [:show, :update, :destroy, :watchlist, :watched_movies]
+    before_action :set_profile, only: [:show, :update, :destroy, :watchlist, :watched_movies, :recommendations]
 
-    before_action :require_authorization!, only: [:show, :update, :destroy, :watchlist, :watched_movies]
+    before_action :require_authorization!, only: [:show, :update, :destroy, :watchlist, :watched_movies, :recommendations]
 
     def index
         render json: current_user.profiles
@@ -34,48 +34,69 @@ class Api::V1::ProfilesController < Api::V1::ApiController
         render json: @profile
     end
 
-    def watchlist
-        api_key = "3624203c3f8aa66f05b09012ea276ec6"
-        @movies = []
-        @recommendations = []
-        @profile.watchlist.each do |item|
-            urlMovie = "https://api.themoviedb.org/3/movie/#{item.movie_id}?api_key=#{api_key}"
-            urlRecommendations = "https://api.themoviedb.org/3/movie/#{item.movie_id}/recommendations?api_key=#{api_key}"
-            responseMovie = RestClient.get  urlMovie
-            responseRecommendation = RestClient.get urlRecommendations
-            movie = JSON.parse(responseMovie)
-            recommendations = JSON.parse(responseRecommendation)
-            @movies.push movie
-            @recommendations.push recommendations
-        end
+    def recommendations
+        recommendations = []
+        recommendations = get_recommendations @profile.watchlist, recommendations
+        recommendations = get_recommendations @profile.watched_movies, recommendations
+        render json: recommendations
+    end
 
+    def watchlist
+        movies = get_movies_from_list @profile.watchlist
         render json: {
             profile: @profile,
-            movies: @movies,
-            recommendations: @recommendations
+            movies: movies
         }
     end
 
     def watched_movies
-        api_key = "3624203c3f8aa66f05b09012ea276ec6"
-        @movies = []
-        @recommendations = []
-        @profile.watched_movies.each do |item|
-            urlMovie = "https://api.themoviedb.org/3/movie/#{item.movie_id}?api_key=#{api_key}"
-            urlRecommendations = "https://api.themoviedb.org/3/movie/#{item.movie_id}/recommendations?api_key=#{api_key}"
-            responseMovie = RestClient.get  urlMovie
-            responseRecommendation = RestClient.get urlRecommendations
-            movie = JSON.parse(responseMovie)
-            recommendations = JSON.parse(responseRecommendation)
-            @movies.push movie
-            @recommendations.push recommendations
-        end
-
+        movies = get_movies_from_list @profile.watched_movies
         render json: {
             profile: @profile,
-            movies: @movies,
-            recommendations: @recommendations
+            movies: movies
         }
+    end
+
+    private
+    def get_recommendations(list, recommendations)
+        api_key = "3624203c3f8aa66f05b09012ea276ec6"
+        list.each do |item|
+            urlRecommendations = "https://api.themoviedb.org/3/movie/#{item.movie_id}/recommendations?api_key=#{api_key}"
+            responseRecommendation = RestClient.get urlRecommendations
+            recommendationsJson = JSON.parse(responseRecommendation)
+            results = recommendationsJson['results']
+            
+            results.each do |rec|
+                if recommendations.length == 0
+                    recommendations.push rec
+                else
+                    founded = false
+                    i = 0
+                    begin
+                        if recommendations[i]['id'] == rec['id']
+                            founded = true
+                        end
+                        i += 1
+                    end while i < recommendations.length
+                    if !founded
+                        recommendations.push rec
+                    end
+                end
+            end
+        end
+        recommendations
+    end
+
+    def get_movies_from_list(list)
+        api_key = "3624203c3f8aa66f05b09012ea276ec6"
+        movies = []
+        list.each do |item|
+            urlMovie = "https://api.themoviedb.org/3/movie/#{item.movie_id}?api_key=#{api_key}"
+            responseMovie = RestClient.get  urlMovie
+            movieJson = JSON.parse(responseMovie)
+            movies.push movieJson
+        end
+        movies
     end
     
     def require_authorization!
