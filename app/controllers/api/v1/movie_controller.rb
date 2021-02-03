@@ -6,7 +6,8 @@ class Api::V1::MovieController < Api::V1::ApiController
         profile_id = params[:profile].to_i
         api_key = "3624203c3f8aa66f05b09012ea276ec6"
         url = "https://api.themoviedb.org/3/movie/#{id}?api_key=#{api_key}"
-        begin movie = JSON.parse RestClient.get url
+        begin
+            movie = JSON.parse RestClient.get url
             response = {
                 status: true,
                 movie: movie

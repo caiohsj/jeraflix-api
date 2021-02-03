@@ -10,17 +10,16 @@ class Api::V1::ProfilesController < Api::V1::ApiController
     end
 
     def create
-        if (current_user.profiles.length < 4)
-            @profile = current_user.profiles.new params.permit(:name)
-            @profile.save
+        @profile = current_user.profiles.new params.permit(:name)
+        if @profile.save
             response = @profile
             status = :ok
         else
             response = {
                 status: false,
-                message: 'You cannot have more than one profile.'
+                message: @profile.errors['user'][0]
             }
-            status = :forbidden
+            status = :unprocessable_entity
         end
 
         render json: response, status: status
