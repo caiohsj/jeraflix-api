@@ -23,9 +23,12 @@ class Api::V1::UserController < ApplicationController
         @user = User.find_for_authentication(email: params[:email])
         if @user.valid_password?(password)
             response = {
-                name: @user.name,
-                email: @user.email,
-                token: @user.authentication_token
+                user: {
+                    name: @user.name,
+                    email: @user.email,
+                    token: @user.authentication_token,
+                },
+                profiles: @user.profiles
             }
             status = :ok
         else
