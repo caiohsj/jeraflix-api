@@ -17,7 +17,7 @@ class Api::V1::ProfilesController < Api::V1::ApiController
         else
             response = {
                 status: false,
-                message: @profile.errors['user'][0]
+                errors: @profile.errors
             }
             status = :unprocessable_entity
         end
